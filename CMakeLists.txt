@@ -1,12 +1,18 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.23)
 
 set(PROJECT_NAME SafeInt)
-project(${PROJECT_NAME} VERSION 3.0.26)
+project(${PROJECT_NAME} VERSION 3.0.28)
 
 set(LIBRARY_NAME SafeInt)
 
 add_library(${LIBRARY_NAME} INTERFACE safe_math.h safe_math_impl.h SafeInt.hpp)
-add_library(${PROJECT_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
+
+target_sources(${LIBRARY_NAME} INTERFACE safe_math.h safe_math_impl.h SafeInt.hpp)
+
+target_include_directories(${LIBRARY_NAME}
+  INTERFACE
+  $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 set_property(TARGET ${LIBRARY_NAME} PROPERTY CXX_STANDARD 11)
 target_compile_features(${LIBRARY_NAME} INTERFACE cxx_std_11)
@@ -31,11 +37,13 @@ option(SAFEINT_BUILD_TESTS "Build tests (default OFF)" OFF)
 # - Intel (not regularly tested)
 # other compilers on a best effort
 if(SAFEINT_BUILD_TESTS)
-	add_subdirectory(Test/ClangTest)
-	add_subdirectory(Test/GccTest)
-	add_subdirectory(Test/MsvcTest)
-	enable_testing()
+        add_subdirectory(Test/ClangTest)
+        add_subdirectory(Test/GccTest)
+        add_subdirectory(Test/MsvcTest)
+        enable_testing()
 endif()
+
+add_library(${PROJECT_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 
 include(GNUInstallDirs)
 
